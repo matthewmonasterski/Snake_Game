@@ -11,7 +11,32 @@ int dx = 1, dy = 0; //direction (dx 1 is right, -1 left, etc.)
 int paused = 0;
 int appleX, appleY; // apple position
 
-
+/*
+* Student: Riley
+* This gets the number of rows and cols of the terminal and sets apple coordinates
+* to be random. 
+*/
+void apple(){
+    int rows, cols; //row and column of terminal
+    getmaxyx(stdscr, rows, cols); // gets values for rows and cols
+    appleX = rand() % cols; //get random x coordinate
+    appleY = rand() % rows; //get random y coordinate
+}
+/*
+* Student: Riley
+* This checks to see if the snakes head touches the coordinates of the apple
+* and increases the length and sets a new location for the apple.
+*/
+void checkCollision(){
+    if (x[0] == appleX && y[0] == appleY) { //check to see if coordinates of head equal apple coordinates
+        length++; //increment snake length
+        apple();  //new apple location
+    }
+}
+/*
+* Student: Riley
+* This gets the head shape depending on the location that the snake is going in.
+*/
 char getHeadChar(int dx, int dy) { //get head symbol 
     if (dx == 1) return '>'; //right
     if (dx == -1) return '<'; //left
@@ -20,7 +45,11 @@ char getHeadChar(int dx, int dy) { //get head symbol
     return 'O';
 }
 
-//Student: Riley
+/*
+* Student: Riley
+* This function moves the snake and handles the logic for arrow keys, building the snake
+and displaying the apple and handling collision with the apple.
+*/
 void moveSnake(int ch) {
     switch (ch) { //switch statement to see what use clicks
         case KEY_UP: //go right
@@ -42,6 +71,8 @@ void moveSnake(int ch) {
     }
     x[0] += dx; //move head
     y[0] += dy; //move head
+
+    checkCollision(); //check if head is on apple
 
     clear(); //clear display
 
@@ -70,13 +101,6 @@ void moveSnake(int ch) {
     }*/
 }
 
-void apple(){
-    int rows, cols;
-    getmaxyx(stdscr, rows, cols);
-
-    appleX = rand() % cols;
-    appleY = rand() % rows;
-}
 //Student: Matthew
 void pauseScreen() {
     //screen for when user chooses to pause the game
@@ -113,20 +137,6 @@ int main() {
     while (running) {
         ch = getch();
         moveSnake(ch);
-        /*switch (ch) {
-            case 'q':
-                running = 0;
-                break;
-            case 'p':
-                paused = !paused;
-                break;
-            case KEY_UP:
-            case KEY_DOWN:
-            case KEY_LEFT:
-            case KEY_RIGHT:
-                updateDirection(ch); 
-                break;
-        }*/
     }
     endwin();
     return 0;
