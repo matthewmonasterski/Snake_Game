@@ -3,19 +3,23 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <time.h>
 
 int y[100], x[100]; //start here
 int length = 3; //snake initial length
 int dx = 1, dy = 0; //direction (dx 1 is right, -1 left, etc.)
 int paused = 0;
+int appleX, appleY; // apple position
 
 
-char getHeadChar(int dx, int dy); //initialize 
-
-//Student: Riley
-void updateDirection() {
-    //You can paste your logic here 
+char getHeadChar(int dx, int dy) { //get head symbol 
+    if (dx == 1) return '>'; //right
+    if (dx == -1) return '<'; //left
+    if (dy == 1) return 'v'; //down
+    if (dy == -1) return '^'; //up
+    return 'O';
 }
+
 //Student: Riley
 void moveSnake(int ch) {
     switch (ch) { //switch statement to see what use clicks
@@ -53,9 +57,10 @@ void moveSnake(int ch) {
             }       
         }
     }
+    mvaddch(appleY, appleX, 'A'); // draw apple
 
     refresh(); //refresh
-    usleep(300000); // (0.3s) between moving
+    usleep(200000); // (0.2s) between moving
     
     /*if (paused) {
             pauseScreen();
@@ -63,6 +68,14 @@ void moveSnake(int ch) {
         moveSnake();   
         render();       
     }*/
+}
+
+void apple(){
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+
+    appleX = rand() % cols;
+    appleY = rand() % rows;
 }
 //Student: Matthew
 void pauseScreen() {
@@ -72,7 +85,7 @@ void pauseScreen() {
 //void render() /*redraws the entire game state each frame */{
     
    // clear();
-    //draw snake and border logic here
+    //draw border logic here
 
    // refresh();
 
@@ -82,7 +95,7 @@ void pauseScreen() {
 int main() {
     //init_ui();
     initscr(); // initialize curses 
-    keypad(stdscr, TRUE); //user kepad
+    keypad(stdscr, TRUE); //user keypad
     curs_set(0); // removes input box
 
     int ch;
@@ -93,6 +106,9 @@ int main() {
         y[i] = 10; // 10
     }
     nodelay(stdscr, TRUE);  //no delay on user input
+
+    srand(time(NULL)); //rand for position of apple
+    apple(); // place apple
 
     while (running) {
         ch = getch();
@@ -112,16 +128,6 @@ int main() {
                 break;
         }*/
     }
-
     endwin();
     return 0;
-
-}
-
-char getHeadChar(int dx, int dy) { //get head symbol 
-    if (dx == 1) return '>'; //right
-    if (dx == -1) return '<'; //left
-    if (dy == 1) return 'v'; //down
-    if (dy == -1) return '^'; //up
-    return 'O';
 }
