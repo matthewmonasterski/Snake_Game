@@ -5,11 +5,55 @@
 #include <stdlib.h>
 #include <time.h>
 
+/*Box border
+Student: Matthew
+*/
+#define BOX_TOP 2
+#define BOX_LEFT 2
+#define BOX_BOTTOM 22
+#define BOX_RIGHT 42
+
 int y[100], x[100]; //start here
 int length = 3; //snake initial length
 int dx = 1, dy = 0; //direction (dx 1 is right, -1 left, etc.)
 int paused = 0;
 int appleX, appleY; // apple position
+
+/* Student: Matthew
+ * Initializes curses settings for the game
+ */
+void init_ui() {
+    initscr();
+    keypad(stdscr, TRUE);
+    curs_set(0);
+    nodelay(stdscr, TRUE);
+    noecho();
+}
+/* Student: Matthew
+ * Draws the visible border of the snake pit
+ */
+void drawBorder() {
+    for (int i = BOX_LEFT; i <= BOX_RIGHT; i++) {
+        mvaddch(BOX_TOP, i, '#');     // top wall
+        mvaddch(BOX_BOTTOM, i, '#'); // bottom wall
+    }
+    for (int i = BOX_TOP; i <= BOX_BOTTOM; i++) {
+        mvaddch(i, BOX_LEFT, '#');   // left wall
+        mvaddch(i, BOX_RIGHT, '#');  // right wall
+    }
+}
+/* Student: Matthew
+ * Displays game over screen
+ */
+void gameOver() {
+    clear();
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    mvprintw(rows / 2,     cols / 2 - 10, "GAME OVER");
+    mvprintw(rows / 2 + 1, cols / 2 - 10, "Press 'q' to quit");
+    refresh();
+    napms(3000); // show screen for 3 seconds then exit
+}
 
 /*
 * Student: Riley
@@ -22,15 +66,22 @@ void apple(){
     appleX = rand() % cols; //get random x coordinate
     appleY = rand() % rows; //get random y coordinate
 }
+
 /*
 * Student: Riley
 * This checks to see if the snakes head touches the coordinates of the apple
 * and increases the length and sets a new location for the apple.
 */
-void checkCollision(){
+void checkCollision(int *running){
     if (x[0] == appleX && y[0] == appleY) { //check to see if coordinates of head equal apple coordinates
         length++; //increment snake length
         apple();  //new apple location
+        // check wall collision
+}
+if (x[0] <= BOX_LEFT || x[0] >= BOX_RIGHT ||
+        y[0] <= BOX_TOP  || y[0] >= BOX_BOTTOM) {
+        gameOver();
+        *running = 0;
     }
 }
 /*
@@ -50,7 +101,7 @@ char getHeadChar(int dx, int dy) { //get head symbol
 * This function moves the snake and handles the logic for arrow keys, building the snake
 and displaying the apple and handling collision with the apple.
 */
-void moveSnake(int ch) {
+void moveSnake(int ch, int *running) {
     switch (ch) { //switch statement to see what use clicks
         case KEY_UP: //go right
             dx = 0; dy = -1; 
@@ -72,9 +123,10 @@ void moveSnake(int ch) {
     x[0] += dx; //move head
     y[0] += dy; //move head
 
-    checkCollision(); //check if head is on apple
+    checkCollision(running); //check if head is on apple
 
     clear(); //clear display
+    drawBorder(); 
 
     for (int i = 0; i < length; i++) { //loop through all body parts to print
         if (i == 0) { // if at head postion 
@@ -93,34 +145,20 @@ void moveSnake(int ch) {
     refresh(); //refresh
     usleep(200000); // (0.2s) between moving
     
-    /*if (paused) {
-            pauseScreen();
-    } else {
-        moveSnake();   
-        render();       
-    }*/
 }
 
 //Student: Matthew
 void pauseScreen() {
     //screen for when user chooses to pause the game
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    mvprintw(rows / 2, cols / 2 - 10, "PAUSED - press 'p' to resume");
+    refresh();
 }
-//Student: Matthew
-//void render() /*redraws the entire game state each frame */{
-    
-   // clear();
-    //draw border logic here
-
-   // refresh();
-
-//}
 
 
 int main() {
-    //init_ui();
-    initscr(); // initialize curses 
-    keypad(stdscr, TRUE); //user keypad
-    curs_set(0); // removes input box
+    init_ui();
 
     int ch;
     int running = 1;
@@ -129,15 +167,27 @@ int main() {
         x[i] = 10-i; //moving right
         y[i] = 10; // 10
     }
-    nodelay(stdscr, TRUE);  //no delay on user input
 
     srand(time(NULL)); //rand for position of apple
     apple(); // place apple
 
     while (running) {
-        ch = getch();
-        moveSnake(ch);
+    ch = getch();
+
+    switch (ch) {
+        case 'q':
+            running = 0;
+            break;
+        case 'p':
+            paused = !paused;
+            break;
+        default:
+            if (!paused) moveSnake(ch, &running);
+            break;
     }
+
+    if (paused) pauseScreen();
+}
     endwin();
     return 0;
 }
