@@ -63,8 +63,8 @@ void gameOver() {
 void apple(){
     int rows, cols; //row and column of terminal
     getmaxyx(stdscr, rows, cols); // gets values for rows and cols
-    appleX = rand() % cols; //get random x coordinate
-    appleY = rand() % rows; //get random y coordinate
+    appleX = (rand() % (BOX_RIGHT - BOX_LEFT - 1) + BOX_LEFT + 1); //get random x coordinate and stay in box
+    appleY = (rand() % (BOX_BOTTOM - BOX_TOP - 1)) + BOX_TOP + 1; //get random y coordinate and stay in box
 }
 
 /*
