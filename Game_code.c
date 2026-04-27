@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 /*Box border
 Student: Matthew
@@ -54,6 +55,19 @@ void gameOver() {
     refresh();
     napms(3000); // show screen for 3 seconds then exit
 }
+/*
+* Student: Riley
+* Used Matthew's code for when game is won
+*/
+void gameWon(){
+    clear();
+    int rows, cols;
+    getmaxyx(stdscr, rows, cols);
+    mvprintw(rows / 2,     cols / 2 - 10, "YOU WIN");
+    mvprintw(rows / 2 + 1, cols / 2 - 10, "Press 'q' to quit");
+    refresh();
+    napms(3000); // show screen for 3 seconds then exit
+}
 
 /*
 * Student: Riley
@@ -77,12 +91,23 @@ void checkCollision(int *running){
         length++; //increment snake length
         apple();  //new apple location
         // check wall collision
-}
-if (x[0] <= BOX_LEFT || x[0] >= BOX_RIGHT ||
+    }
+    if (x[0] <= BOX_LEFT || x[0] >= BOX_RIGHT ||
         y[0] <= BOX_TOP  || y[0] >= BOX_BOTTOM) {
         gameOver();
         *running = 0;
     }
+    if(length == 10){ // if length is 10, display game won screen
+        gameWon();
+        *running = 0;
+    }
+}
+/*
+* Student: Riley
+* Displays current length
+*/
+void displayLength(){
+    mvprintw(10, 50, "Score: %d / 10", length);
 }
 /*
 * Student: Riley
@@ -127,6 +152,7 @@ void moveSnake(int ch, int *running) {
 
     clear(); //clear display
     drawBorder(); 
+    displayLength();
 
     for (int i = 0; i < length; i++) { //loop through all body parts to print
         if (i == 0) { // if at head postion 
