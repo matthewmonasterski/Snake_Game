@@ -20,6 +20,30 @@ int dx = 1, dy = 0; //direction (dx 1 is right, -1 left, etc.)
 int paused = 0;
 int appleX, appleY; // apple position
 
+/*
+* Student: Riley
+8 Allows user to set difficulty and returns the time based off selection
+*/
+int setDifficulty() {
+    int ch; // selection
+    nodelay(stdscr, FALSE); // Wait for user input
+    clear();
+    mvprintw(7, 10, "Select Difficulty:"); //header
+    mvprintw(8, 10, "1. Easy"); //easy
+    mvprintw(9, 10, "2. Medium"); //medium
+    mvprintw(10, 10, "3. Hard (0.1ms)"); //hard
+    refresh(); //refresh
+
+    ch = getch(); //hold user input
+    nodelay(stdscr, TRUE); // Return to non-blocking for game
+    clear(); //clear options
+
+    if(ch == '1') return 200000; // 200ms
+    if(ch == '2') return 150000; // 150ms
+    if(ch == '3') return 100000; // 100ms
+    return 150000; //default
+}
+
 /* Student: Matthew
  * Initializes curses settings for the game
  */
@@ -90,12 +114,20 @@ void checkCollision(int *running){
     if (x[0] == appleX && y[0] == appleY) { //check to see if coordinates of head equal apple coordinates
         length++; //increment snake length
         apple();  //new apple location
-        // check wall collision
-    }
+    } 
+    // check wall collision
     if (x[0] <= BOX_LEFT || x[0] >= BOX_RIGHT ||
         y[0] <= BOX_TOP  || y[0] >= BOX_BOTTOM) {
         gameOver();
         *running = 0;
+    }
+    // Checks if the snake hits itself
+    for (int i = 1; i < length; i++) {
+        if (x[0] == x[i] && y[0] == y[i]) { //if x0 equals x1-10 same for y
+            gameOver(); // end game
+            *running = 0;
+            return; // Stop checking
+        }
     }
     if(length == 10){ // if length is 10, display game won screen
         gameWon();
@@ -124,9 +156,9 @@ char getHeadChar(int dx, int dy) { //get head symbol
 /*
 * Student: Riley
 * This function moves the snake and handles the logic for arrow keys, building the snake
-and displaying the apple and handling collision with the apple.
+and displaying the apple and handling collision with the apple. It also implements delay time
 */
-void moveSnake(int ch, int *running) {
+void moveSnake(int ch, int *running, int delay) {
     switch (ch) { //switch statement to see what use clicks
         case KEY_UP: //go right
             dx = 0; dy = -1; 
@@ -169,7 +201,7 @@ void moveSnake(int ch, int *running) {
     mvaddch(appleY, appleX, 'A'); // draw apple
 
     refresh(); //refresh
-    usleep(200000); // (0.2s) between moving
+    usleep(delay); // Chosen time between moving
     
 }
 
@@ -185,6 +217,7 @@ void pauseScreen() {
 
 int main() {
     init_ui();
+    int current_speed = setDifficulty(); //call setDifficulty and store the result
 
     int ch;
     int running = 1;
@@ -198,22 +231,22 @@ int main() {
     apple(); // place apple
 
     while (running) {
-    ch = getch();
+        ch = getch();
 
-    switch (ch) {
-        case 'q':
-            running = 0;
-            break;
-        case 'p':
-            paused = !paused;
-            break;
-        default:
-            if (!paused) moveSnake(ch, &running);
-            break;
+        switch (ch) {
+            case 'q':
+                running = 0;
+                break;
+            case 'p':
+                paused = !paused;
+                break;
+            default:
+                if (!paused) moveSnake(ch, &running, current_speed); //call moveSnake with direction, running, and current speed
+                break;
+        }
+
+        if (paused) pauseScreen();
     }
-
-    if (paused) pauseScreen();
-}
     endwin();
     return 0;
 }
