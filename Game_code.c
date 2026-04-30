@@ -115,6 +115,12 @@ void checkCollision(int *running){
         length++; //increment snake length
         apple();  //new apple location
     } 
+    int perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));  //Edited by: Matthew. Adding the required length of snake to win the game
+    if (length == perimeter / 2) {
+    gameWon();
+    *running = 0;
+    return;
+}
     // check wall collision
     if (x[0] <= BOX_LEFT || x[0] >= BOX_RIGHT ||
         y[0] <= BOX_TOP  || y[0] >= BOX_BOTTOM) {
@@ -129,10 +135,7 @@ void checkCollision(int *running){
             return; // Stop checking
         }
     }
-    if(length == 10){ // if length is 10, display game won screen
-        gameWon();
-        *running = 0;
-    }
+   
 }
 /*
 * Student: Riley
@@ -154,25 +157,25 @@ char getHeadChar(int dx, int dy) { //get head symbol
 }
 
 /*
-* Student: Riley
+* Student: Riley, edited by Matthew
 * This function moves the snake and handles the logic for arrow keys, building the snake
 and displaying the apple and handling collision with the apple. It also implements delay time
 */
 void moveSnake(int ch, int *running, int delay) {
-    switch (ch) { //switch statement to see what use clicks
-        case KEY_UP: //go right
-            dx = 0; dy = -1; 
-            break;
-        case KEY_DOWN:
-            dx = 0; dy = 1; //go down
-            break;
-        case KEY_LEFT: //go left
-            dx = -1; dy = 0;
-            break;
-        case KEY_RIGHT: //go right
-            dx = 1; dy = 0;
-            break;
-    }
+   switch (ch) {
+    case KEY_UP:
+        if (dy != 1) { dx = 0; dy = -1; }  
+        break;
+    case KEY_DOWN:
+        if (dy != -1) { dx = 0; dy = 1; }  //Edited so snake cannot reverse into itself
+        break;
+    case KEY_LEFT:
+        if (dx != 1) { dx = -1; dy = 0; }  
+        break;
+    case KEY_RIGHT:
+        if (dx != -1) { dx = 1; dy = 0; }  
+        break;
+}
     for (int i = length - 1; i > 0; i--) { //move body parts
         x[i] = x[i - 1]; //move in x direction
         y[i] = y[i - 1]; //move in y direction
