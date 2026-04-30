@@ -19,6 +19,7 @@ int length = 3; //snake initial length
 int dx = 1, dy = 0; //direction (dx 1 is right, -1 left, etc.)
 int paused = 0;
 int appleX, appleY; // apple position
+int perimeter; //perimeter of border
 
 /*
 * Student: Riley
@@ -115,7 +116,7 @@ void checkCollision(int *running){
         length++; //increment snake length
         apple();  //new apple location
     } 
-    int perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));  //Edited by: Matthew. Adding the required length of snake to win the game
+    perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));  //Edited by: Matthew. Adding the required length of snake to win the game
     if (length == perimeter / 2) {
     gameWon();
     *running = 0;
@@ -142,7 +143,7 @@ void checkCollision(int *running){
 * Displays current length
 */
 void displayLength(){
-    mvprintw(10, 50, "Score: %d / 10", length);
+    mvprintw(10, 50, "Score: %d / %d", length, perimeter/2);
 }
 /*
 * Student: Riley
