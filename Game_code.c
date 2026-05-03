@@ -116,7 +116,7 @@ void checkCollision(int *running){
         length++; //increment snake length
         apple();  //new apple location
     } 
-    perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));  //Edited by: Matthew. Adding the required length of snake to win the game
+    //perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));  //Edited by: Matthew. Adding the required length of snake to win. Moved to main
     if (length == perimeter / 2) {
     gameWon();
     *running = 0;
@@ -127,6 +127,7 @@ void checkCollision(int *running){
         y[0] <= BOX_TOP  || y[0] >= BOX_BOTTOM) {
         gameOver();
         *running = 0;
+        return;
     }
     // Checks if the snake hits itself
     for (int i = 1; i < length; i++) {
@@ -205,7 +206,11 @@ void moveSnake(int ch, int *running, int delay) {
     mvaddch(appleY, appleX, 'A'); // draw apple
 
     refresh(); //refresh
-    usleep(delay); // Chosen time between moving
+    if (dy != 0) {
+        usleep(delay * 2); // extra delay for vertical to account for character height
+    } else {
+        usleep(delay); 
+    }
     
 }
 
@@ -233,6 +238,8 @@ int main() {
 
     srand(time(NULL)); //rand for position of apple
     apple(); // place apple
+
+    perimeter = 2 * ((BOX_RIGHT - BOX_LEFT) + (BOX_BOTTOM - BOX_TOP));
 
     while (running) {
         ch = getch();
